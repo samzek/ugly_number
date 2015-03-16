@@ -78,18 +78,20 @@ def main():
         return
     file = open((sys.argv[1]),"r")
     text = file.read().splitlines()
+   # print text
     file.close()
 
     for inputStr in text:
-        global count_ugly
-        count_ugly = 0
-        root = Node(inputStr[0])
-        i = 1
-        create_tree(root,inputStr,i)
-        #print "##################START PRINT TREE###################"
-        #print_tree(root,space)
-        #print "##################END PRINT TREE#####################"
-        print count_ugly
+        if (inputStr != ""):
+            global count_ugly
+            count_ugly = 0
+            root = Node(inputStr[0])
+            i = 1
+            create_tree(root,inputStr,i)
+            #print "##################START PRINT TREE###################"
+            #print_tree(root,space)
+            #print "##################END PRINT TREE#####################"
+            print count_ugly
 
 if __name__== "__main__":
      main()
