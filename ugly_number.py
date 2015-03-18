@@ -112,8 +112,7 @@ def create_tree(root,string,i,threads):
             create_tree(node.children[n],string,i,threads)
 
 """
-Iterative implementation of the function: create_tree_iter that use a stack data structure to simulate the real function
-stake
+Iterative implementation of the function: create_tree_iter that use a stack data structure to simulate recursion
 """
 def create_tree_iter(stack,string,threads):
     elm = stack[0]
