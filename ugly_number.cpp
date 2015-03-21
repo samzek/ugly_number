@@ -1,8 +1,8 @@
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -15,7 +15,7 @@ class Node{
 	Node();
 	Node(char *);
 	Node(char);
-	void add_children(Node *,int);
+	void add_children(Node,int);
 };
 Node::Node(){;};
 Node::Node(char first){
@@ -23,14 +23,21 @@ Node::Node(char first){
 	data[0] = first;
 };
 Node::Node(char *string){
-	data = new char[strlen(string)+1];
-	strcpy(data,string);
+	data = string;
+};
+struct stack_t {
+	Node *nd;
+	int i;
+	int n;	
 };
 
-void Node::add_children(Node *nd,int index)
+typedef stack_t Stack;
+
+void Node::add_children(Node nd,int index)
 {
-	leaves[index] = *nd;
+	leaves[index] = nd;
 };
+
 void ugly_or_not_ugly(char string[]){
 	int val = 0;
 	if ((strpbrk(string,"+") != NULL) || (strpbrk(string,"-")!= NULL)) 
@@ -68,9 +75,10 @@ void add_nodes(char c,Node *nd,bool is_leaves){
 	strcpy(str,nd->data);	
 	sprintf(str,"%s%c",str,c);
 	if(is_leaves == false)
-		nd->add_children(new Node(str),0);
-	else
+		nd->add_children(Node(str),0);
+	else{
 		ugly_or_not_ugly(str);
+	}
 	str = NULL;
 	
 	str = new char[strlen(nd->data)+3];
@@ -78,9 +86,10 @@ void add_nodes(char c,Node *nd,bool is_leaves){
 	sprintf(str,"%s%c",str,'+');
 	sprintf(str,"%s%c",str,c);
 	if(is_leaves == false)
-		nd->add_children(new Node(str),1);
-	else
+		nd->add_children(Node(str),1);
+	else{
 		ugly_or_not_ugly(str);
+	}
 	str = NULL;
 	
 	str = new char[strlen(nd->data)+3];
@@ -88,11 +97,11 @@ void add_nodes(char c,Node *nd,bool is_leaves){
 	sprintf(str,"%s%c",str,'-');
 	sprintf(str,"%s%c",str,c);
 	if(is_leaves == false)
-		nd->add_children(new Node(str),2);
-	else
+		nd->add_children(Node(str),2);
+	else{
 		ugly_or_not_ugly(str);
-	
-	delete []str;
+	}
+
 };
 
 //TODO:reduce memory utilization
@@ -120,19 +129,67 @@ void create_tree(Node root,char string[],int i){
 			create_tree(nd->leaves[n],string,i);
 	}
 };
+void create_tree_iter(Stack *stack,char string[],int pop){
+	Stack *elm = &stack[pop];
+	while(elm->n < 3){
+		if (elm->i == strlen(string))
+			elm->i--;
+		int a=0;
+		for(int h=0;h<strlen(elm->nd->data);h++)
+		{
+			if(*(elm->nd->data+h)!='+' && *(elm->nd->data+h)!='-')
+			{
+				a++;
+			}
+		}
+		if (a == strlen(string)-1){
+			add_nodes(string[elm->i--],elm->nd,true);
+			pop--;
+			while(stack[pop].n == 3){
+				if (pop == 0)
+					return;
+				stack[--pop].i--;
+			}
+		}
+		else {
+			if (elm->n == 0)
+				add_nodes(string[elm->i],elm->nd,false);
+			elm->i++;
+			Stack nextEl;
+			nextEl.nd = &elm->nd->leaves[elm->n];
+			nextEl.i = elm->i;
+			nextEl.n = 0;
+			stack[++pop] = nextEl;
+			elm->n+=1;
+		}
+	elm = &stack[pop];
+	}
+}
 int main (int argc,char **argv)
 {
 	ifstream stream(argv[1]);
     string line;
     Node root;
+    char *inputStr;
+    int i,el_to_pop;
+    Stack *stack;	
     while (getline(stream, line)) {
     	if (line == "")
 			continue;
 		else {
 			count_ugly = 0;
 			root = Node(line[0]);
-			int i = 1;
-			char *inputStr = new char [line.length() + 1];
+			i = 1;
+			inputStr = new char [line.length() + 1];
+			
+			//data structure for iterative implementation
+			/*
+			stack = new Stack[(int)pow(3,line.length()-1)];
+			el_to_pop = 0;
+			stack[0].nd = &root;
+			stack[0].i = i;
+			stack[0].n = 0;
+			*/
 			for(int p = 0;p<line.length();p++)
 				inputStr[p] = line[p];
 			inputStr[line.length()] = '\0';
@@ -143,6 +200,8 @@ int main (int argc,char **argv)
 					ugly_or_not_ugly(inputStr);
 				else
 					create_tree(root,inputStr,i);
+					//create_tree_iter(stack,inputStr,el_to_pop);
+			cout<<"Node's dimension: "<<sizeof(Node)<<endl;
 			cout<<count_ugly<<endl;
 		}
 		
