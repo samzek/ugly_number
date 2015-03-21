@@ -67,12 +67,12 @@ void ugly_or_not_ugly(char string[]){
 	}
 };
 
-void add_nodes(char c,Node *nd,bool is_leaves){
+void add_nodes(char c,Node *nd,bool is_leaves,char *string_used){
 	if(is_leaves == false)
 		nd->leaves = new Node[3];
 	char *str;
-	str = new char[strlen(nd->data)+2];
-	strcpy(str,nd->data);	
+	str = new char[strlen(string_used)+2];
+	strcpy(str,string_used);	
 	sprintf(str,"%s%c",str,c);
 	if(is_leaves == false)
 		nd->add_children(Node(str),0);
@@ -81,8 +81,8 @@ void add_nodes(char c,Node *nd,bool is_leaves){
 	}
 	str = NULL;
 	
-	str = new char[strlen(nd->data)+3];
-	strcpy(str,nd->data);
+	str = new char[strlen(string_used)+3];
+	strcpy(str,string_used);
 	sprintf(str,"%s%c",str,'+');
 	sprintf(str,"%s%c",str,c);
 	if(is_leaves == false)
@@ -92,8 +92,8 @@ void add_nodes(char c,Node *nd,bool is_leaves){
 	}
 	str = NULL;
 	
-	str = new char[strlen(nd->data)+3];
-	strcpy(str,nd->data);
+	str = new char[strlen(string_used)+3];
+	strcpy(str,string_used);
 	sprintf(str,"%s%c",str,'-');
 	sprintf(str,"%s%c",str,c);
 	if(is_leaves == false)
@@ -104,7 +104,6 @@ void add_nodes(char c,Node *nd,bool is_leaves){
 
 };
 
-//TODO:reduce memory utilization
 void create_tree(Node root,char string[],int i){
 	Node *nd = &root;
 	int a=0;
@@ -115,13 +114,49 @@ void create_tree(Node root,char string[],int i){
 			a++;
 		}
 	}
-	if (a == strlen(string)-1){
-		add_nodes(string[i],nd,true);
+		if (a == strlen(string)-1){
+			add_nodes(string[i],nd,true,nd->data);
+			return;
+		}
+	/*
+	if (a == strlen(string)-2 || strlen(string)-2 == 0){
+		//This solution fail with only one test case
+		char *str;
+		str = new char[strlen(nd->data)+2];
+		strcpy(str,nd->data);	
+		sprintf(str,"%s%c",str,string[i]);
+		if(strlen(string)-2 == 0)
+			ugly_or_not_ugly(str);
+		else
+			add_nodes(string[i+1],nd,true,str);
+		str = NULL;
+		
+		str = new char[strlen(nd->data)+3];
+		strcpy(str,nd->data);
+		sprintf(str,"%s%c",str,'+');
+		sprintf(str,"%s%c",str,string[i]);
+		if(strlen(string)-2 == 0)
+			ugly_or_not_ugly(str);
+		else
+			add_nodes(string[i+1],nd,true,str);
+		str = NULL;
+		
+		str = new char[strlen(nd->data)+3];
+		strcpy(str,nd->data);
+		sprintf(str,"%s%c",str,'-');
+		sprintf(str,"%s%c",str,string[i]);
+		if(strlen(string)-2 == 0)
+			ugly_or_not_ugly(str);
+		else
+			add_nodes(string[i+1],nd,true,str);
+		
+		delete []str;
 		return;
 	}
+	*/
 	if (i == strlen(string))
 		i--;
-	add_nodes(string[i],nd,false);
+	add_nodes(string[i],nd,false,nd->data);
 	i++;
 	
 	for(int n = 0;n<3;n++){
@@ -143,7 +178,7 @@ void create_tree_iter(Stack *stack,char string[],int pop){
 			}
 		}
 		if (a == strlen(string)-1){
-			add_nodes(string[elm->i--],elm->nd,true);
+			add_nodes(string[elm->i],elm->nd,true,elm->nd->data);
 			pop--;
 			while(stack[pop].n == 3){
 				if (pop == 0)
@@ -153,7 +188,7 @@ void create_tree_iter(Stack *stack,char string[],int pop){
 		}
 		else {
 			if (elm->n == 0)
-				add_nodes(string[elm->i],elm->nd,false);
+				add_nodes(string[elm->i],elm->nd,false,elm->nd->data);
 			elm->i++;
 			Stack nextEl;
 			nextEl.nd = &elm->nd->leaves[elm->n];
@@ -201,7 +236,7 @@ int main (int argc,char **argv)
 				else
 					create_tree(root,inputStr,i);
 					//create_tree_iter(stack,inputStr,el_to_pop);
-			cout<<"Node's dimension: "<<sizeof(Node)<<endl;
+			//cout<<"Node's dimension: "<<sizeof(Node)<<endl;
 			cout<<count_ugly<<endl;
 		}
 		
